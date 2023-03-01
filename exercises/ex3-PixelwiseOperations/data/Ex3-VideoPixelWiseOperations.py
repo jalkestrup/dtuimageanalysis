@@ -53,7 +53,7 @@ def capture_from_camera_and_show_images():
     old_time = time.perf_counter()
     fps = 0
     stop = False
-    process_rgb = False
+    process_rgb = True
     while not stop:
         ret, new_frame = cap.read()
         if not ret:
