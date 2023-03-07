@@ -5,6 +5,7 @@ from skimage.filters import prewitt
 from skimage.filters import threshold_otsu
 from skimage.filters import median
 import time
+import sys
 import cv2
 import numpy as np
 
@@ -17,14 +18,30 @@ def show_in_moved_window(win_name, img, x, y):
     cv2.imshow(win_name, img)
 
 
-def process_gray_image(img):
+def process_gray_image(img, median_flag):
     """
     Do a simple processing of an input gray scale image and return the processed image.
     # https://scikit-image.org/docs/stable/user_guide/data_types.html#image-processing-pipeline
     """
-    # Do something here:
+    #Copy the input image
     proc_img = img.copy()
-    return img_as_ubyte(proc_img)
+    #Do a median filter to remove noise if opted
+    if median_flag == True:
+        print("Median filter")
+        footprint= np.ones([5,5])
+        proc_img = median(proc_img, footprint)
+    #Apply prewitt filter to detect edges
+    proc_img = prewitt(proc_img)
+    #Convert to ubyte
+    proc_img_byte = img_as_ubyte(proc_img)
+    #Apply Otsu's thresholding to get a binary image
+    thres = threshold_otsu(proc_img_byte)
+    #Create a new image initially filled with zeros
+    img_thres = np.zeros(proc_img_byte.shape, dtype=np.uint8)
+    #Set all pixels with a value above the threshold to 255
+    img_thres[proc_img_byte > thres] = 255
+    #Image_thres is already a ubyte image, no need to convert
+    return img_thres
 
 
 def process_rgb_image(img):
@@ -38,7 +55,7 @@ def process_rgb_image(img):
     return proc_img
 
 
-def capture_from_camera_and_show_images():
+def capture_from_camera_and_show_images(median_flag = False):
     print("Starting image capture")
 
     print("Opening connection to camera")
@@ -71,7 +88,7 @@ def capture_from_camera_and_show_images():
             # convert back to OpenCV BGR to show it
             proc_img = proc_img[:, :, ::-1]
         else:
-            proc_img = process_gray_image(new_image_gray)
+            proc_img = process_gray_image(new_image_gray, median_flag)
 
         # update FPS - but do it slowly to avoid fast changing number
         new_time = time.perf_counter()
@@ -98,4 +115,9 @@ def capture_from_camera_and_show_images():
 
 
 if __name__ == '__main__':
-    capture_from_camera_and_show_images()
+    args = sys.argv
+    # Convert the arguments to boolean
+    args = [bool(int(i)) for i in args[1:]]
+    median_flag = args
+    print("Median flag: ", median_flag)
+    capture_from_camera_and_show_images(median_flag)
