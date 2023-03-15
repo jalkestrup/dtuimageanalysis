@@ -10,7 +10,7 @@ import plotly.io as pio
 pio.renderers.default = 'browser'
 
 def interactive_blobs():
-    in_dir = "data/"
+    in_dir = "./data/"
     im_name = "lego_4_small.png"
 
     img_org = io.imread(in_dir + im_name)
