@@ -23,6 +23,7 @@ Fork of the repo of the DTU course [02502 Image Analysis] (http://courses.comput
 ### Author
 
 Rasmus R. Paulsen. DTU Compute (https://people.compute.dtu.dk/rapa/)
+Jesper Alkestrup.
 
 ### License
 
